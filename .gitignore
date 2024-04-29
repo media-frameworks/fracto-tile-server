@@ -131,3 +131,6 @@ dist
 
 # keys and secrets
 /admin
+
+# data
+/package
