@@ -41,6 +41,9 @@ fetch(INDEXED_TILES_URL)
          // console.log(short_code)
 
          const level = short_code.length
+         if (level > 20) {
+            continue;
+         }
          const naught = level < 10 ? '0' : ''
          const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
          if (!fs.existsSync(filename)) {
