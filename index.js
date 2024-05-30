@@ -101,26 +101,39 @@ app.get("/get_packages", (req, res) => {
       const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
       if (fs.existsSync(filename)) {
          const zipfile_contents = fs.readFileSync(filename)
-         results[short_code] = new Buffer(zipfile_contents).toString("base64")
+         results[short_code] = Buffer.from(zipfile_contents).toString("base64")
       } else {
          not_found.push(short_code)
       }
    }
-   const result = {
+   let result = {
       short_codes: short_codes,
       packages: results,
       not_found: not_found
    }
    console.log(`returning ${Object.keys(results).length} package(s) of ${short_codes.length} short codes`)
    res.send(result);
-   // if (not_found.length) {
-   //    const remote_tiles_list = not_found.join(',')
-   //    console.log(`calling for ${not_found.length} tile(s) to be packaged`)
-   //    const url = `${URL_BASE}/package_tiles.php?short_codes=${remote_tiles_list}`
-   //    fetch(url)
-   //       .then(response => response.json())
-   //       .then(json => {
-   //
-   //       })
-   // }
 });
+
+app.get("/fetch_packages", (req, res) => {
+   const short_code_list = req.query.short_codes;
+   const short_codes = short_code_list.split(',')
+   console.log(`calling for ${short_codes.length} packages from the server`)
+   const url = `${URL_BASE}/get_packages.php?short_codes=${remote_tiles_list}`
+   console.log(url)
+   fetch(url)
+      .then(response => response.json())
+      .then(json => {
+         console.log(`returned ${Object.keys(json.packaged).length} package(s)`)
+         result.not_found = json.not_found
+         const packaged_keys = Object.keys(json.packaged)
+         for (let i = 0; i < packaged_keys.length; i++) {
+            result.packages[packaged_keys[i]] = json.packaged[packaged_keys[i]]
+         }
+         console.log(`returning ${Object.keys(result.packages).length} package(s) of ${short_codes.length} short codes, ${not_found.length - json.not_found.length} were remote`)
+         if (packaged_keys.length) {
+            console.log('YAY')
+         }
+         res.send(result);
+      })
+})
