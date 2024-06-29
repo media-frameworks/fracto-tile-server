@@ -111,7 +111,7 @@ app.get("/get_packages", (req, res) => {
       packages: results,
       not_found: not_found
    }
-   console.log(`returning ${Object.keys(results).length} package(s) of ${short_codes.length} short codes`)
+   console.log(`found [${Object.keys(results).join(',')}], not_found: [${not_found.join(',')}]`)
    res.send(result);
 });
 
