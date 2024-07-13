@@ -134,4 +134,6 @@ dist
 
 # data
 /package
+/tiles
 /acw-common
+/fracto-common

@@ -115,6 +115,13 @@ app.get("/get_packages", (req, res) => {
    res.send(result);
 });
 
+app.get("/tile_index", (req, res) => {
+   const filename = req.query.filename;
+   const filepath = `./tiles/${filename}`
+   const level_contents = fs.readFileSync(filepath)
+   res.json(level_contents);
+});
+
 app.get("/fetch_packages", (req, res) => {
    const short_code_list = req.query.short_codes;
    const short_codes = short_code_list.split(',')
