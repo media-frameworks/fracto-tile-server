@@ -2,6 +2,17 @@ const fs = require('fs');
 
 const tile_index = []
 
+const BIN_VERB_INDEXED = "indexed";
+let bin_verb = process.argv[2]
+if (!bin_verb) {
+   bin_verb = BIN_VERB_INDEXED
+}
+const tile_bin_dir  = `./tiles/${bin_verb}`
+if (!fs.existsSync(tile_bin_dir)) {
+   console.log("adding tiles dir", tile_bin_dir)
+   fs.mkdirSync(tile_bin_dir);
+}
+
 const URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 
 const load_short_codes = (tile_set_name, cb) => {
@@ -89,7 +100,6 @@ const index_tiles = (batch_list) => {
    }
 }
 
-const BIN_VERB_INDEXED = "indexed";
 
 const TILES_IN_PACKET = 50000
 
@@ -100,8 +110,8 @@ const packet_manifest ={
 
 const write_packet_file = (level, packet_columns, packet_index) => {
    const packet_indicator = packet_index === -1 ? '' : `_(${packet_index + 1})`
-   const filename = `tile_packet_level_${level}${packet_indicator}.json`
-   const filepath = `./tiles/${filename}`
+   const filename = `tile_packet_bin_${bin_verb}_level_${level}${packet_indicator}.json`
+   const filepath = `${tile_bin_dir}/${filename}`
    const packet_data = {
       level: level,
       columns: packet_columns
@@ -111,7 +121,7 @@ const write_packet_file = (level, packet_columns, packet_index) => {
    packet_manifest.packet_files.push(filename)
 }
 
-load_short_codes(BIN_VERB_INDEXED, result => {
+load_short_codes(bin_verb, result => {
    index_tiles(result)
    console.log(`tile_index contains ${tile_index.length} levels`)
    for (let i = 0; i < tile_index.length; i++) {
@@ -134,6 +144,6 @@ load_short_codes(BIN_VERB_INDEXED, result => {
          write_packet_file(level, packet_columns, packet_index ? packet_index : -1)
       }
    }
-   const manifest_path = './tiles/packet_manifest.json'
+   const manifest_path = `${tile_bin_dir}/packet_manifest.json`
    fs.writeFileSync(manifest_path, JSON.stringify(packet_manifest))
 })
