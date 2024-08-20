@@ -1,13 +1,11 @@
 const fs = require('fs');
 
-const tile_index = []
-
 const BIN_VERB_INDEXED = "indexed";
 let bin_verb = process.argv[2]
 if (!bin_verb) {
    bin_verb = BIN_VERB_INDEXED
 }
-const tile_bin_dir  = `./tiles/${bin_verb}`
+const tile_bin_dir = `./tiles/${bin_verb}`
 if (!fs.existsSync(tile_bin_dir)) {
    console.log("adding tiles dir", tile_bin_dir)
    fs.mkdirSync(tile_bin_dir);
@@ -65,21 +63,20 @@ const bounds_from_short_code = (short_code) => {
    }
 }
 
-const index_tiles = (batch_list) => {
+const index_tiles = (level, batch_list) => {
+   level_bin = {
+      level: level,
+      tile_size: Math.pow(2, 2 - level),
+      columns: []
+   }
+   let processed = 0
    for (let line_index = 0; line_index < batch_list.length; line_index++) {
       const short_code = batch_list[line_index].trim();
-      const level = short_code.length
-      const bounds = bounds_from_short_code(short_code)
-      let level_bin = tile_index
-         .find(bin => bin.level === level)
-      if (!level_bin) {
-         level_bin = {
-            level: level,
-            tile_size: bounds.right - bounds.left,
-            columns: []
-         }
-         tile_index.push(level_bin)
+      if (short_code.length !== level) {
+         continue
       }
+      processed++
+      const bounds = bounds_from_short_code(short_code)
       let tile_column = level_bin.columns
          .find(column => column.left === bounds.left)
       if (!tile_column) {
@@ -94,16 +91,18 @@ const index_tiles = (batch_list) => {
          short_code: short_code
       }
       tile_column.tiles.push(tile)
-      if (line_index % 10000 === 0) {
-         console.log(line_index)
+      if (processed % 100000 === 0) {
+         console.log(`level ${level} ${processed}`)
       }
    }
+   console.log(`level ${level} ${processed}`)
+   return level_bin
 }
 
 
 const TILES_IN_PACKET = 50000
 
-const packet_manifest ={
+const packet_manifest = {
    tile_count: 0,
    packet_files: []
 }
@@ -122,15 +121,14 @@ const write_packet_file = (level, packet_columns, packet_index) => {
 }
 
 load_short_codes(bin_verb, result => {
-   index_tiles(result)
-   console.log(`tile_index contains ${tile_index.length} levels`)
-   for (let i = 0; i < tile_index.length; i++) {
-      const level = tile_index[i].level
+   for (let level = 2; level <= 35; level++) {
+      const level_bin = index_tiles(level, result)
+      console.log(`level_bin contains ${level_bin.columns.length} columns`)
       let packet_index = 0
       let tile_count = 0
       let packet_columns = []
-      for (let col_index = 0; col_index < tile_index[i].columns.length; col_index++) {
-         const column = tile_index[i].columns[col_index]
+      for (let col_index = 0; col_index < level_bin.columns.length; col_index++) {
+         const column = level_bin.columns[col_index]
          packet_columns.push(column)
          tile_count += column.tiles.length
          if (tile_count > TILES_IN_PACKET) {
@@ -147,3 +145,4 @@ load_short_codes(bin_verb, result => {
    const manifest_path = `${tile_bin_dir}/packet_manifest.json`
    fs.writeFileSync(manifest_path, JSON.stringify(packet_manifest))
 })
+
