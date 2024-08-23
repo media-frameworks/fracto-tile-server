@@ -17,7 +17,11 @@ const download_packages = (list) => {
             const buffer = Buffer.from(json["packaged"][short_code], 'base64');
             const level = short_code.length
             const naught = level < 10 ? '0' : ''
-            const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
+            const folder = `${package_dir}\\L${naught}${level}`
+            if (!fs.existsSync(folder)) {
+               fs.mkdirSync(folder);
+            }
+            const filename = `${folder}\\${short_code}.gz`
             fs.writeFileSync(filename, buffer)
             console.log(short_code)
          }
@@ -41,7 +45,7 @@ fetch(INDEXED_TILES_URL)
          // console.log(short_code)
 
          const level = short_code.length
-         if (level > 20) {
+         if (level > 30) {
             continue;
          }
          const naught = level < 10 ? '0' : ''
