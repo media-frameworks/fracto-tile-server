@@ -5,9 +5,10 @@ const URL_BASE = network.dev_server_url;
 const FRACTO_URL = network.fracto_server_url;
 
 const INDEXED_TILES_URL = `${URL_BASE}/directory/indexed.csv`;
+const UPDATED_TILES_URL = `${URL_BASE}/directory/updated.csv`;
 const package_dir = `.\\package`
 
-const download_packages = (list) => {
+const download_packages = (list, cb) => {
    const short_code = list.pop()
    const url = `${FRACTO_URL}/get_packages.php?short_codes=${short_code}`
    fetch(url)
@@ -29,35 +30,63 @@ const download_packages = (list) => {
             console.log(`${list.length} to go`)
          }
          if (list.length) {
-            download_packages(list)
+            download_packages(list, cb)
+         } else {
+            cb('complete')
          }
       })
+      .catch(err => {
+         console.log("download_packages fail", short_code)
+         download_packages(list, cb)
+      });
 }
 
-fetch(INDEXED_TILES_URL)
+fetch(UPDATED_TILES_URL)
    .then(response => response.text())
-   .then(csv => {
-      const lines = csv.split("\n");
-      const not_found = []
+   .then(csv1 => {
+      const lines = csv1.split("\n");
+      let removedFiles = 0
       for (let line_index = 1; line_index < lines.length; line_index++) {
          const values = lines[line_index].split(',');
          const short_code = String(values[0]);
-         // console.log(short_code)
-
          const level = short_code.length
-         if (level > 30) {
-            continue;
-         }
          const naught = level < 10 ? '0' : ''
-         const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
-         if (!fs.existsSync(filename)) {
-            not_found.push(short_code)
-         }
-         if (line_index % 10000 === 0) {
-            console.log(`${not_found.length}/${line_index}`)
+         const folder = `${package_dir}\\L${naught}${level}`
+         const filename = `${folder}\\${short_code}.gz`
+         if (fs.existsSync(filename)) {
+            fs.unlinkSync(filename)
+            removedFiles++
          }
       }
-      console.log(`indexed: ${lines.length}, not_found: ${not_found.length}`)
-      download_packages(not_found)
+      console.log(`update: removed ${removedFiles} from package cache`)
+      fetch(INDEXED_TILES_URL)
+         .then(response => response.text())
+         .then(csv2 => {
+            const lines = csv2.split("\n");
+            const not_found = []
+            for (let line_index = 1; line_index < lines.length; line_index++) {
+               const values = lines[line_index].split(',');
+               const short_code = String(values[0]);
+               // console.log(short_code)
+
+               const level = short_code.length
+               if (level > 30) {
+                  continue;
+               }
+               const naught = level < 10 ? '0' : ''
+               const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
+               if (!fs.existsSync(filename)) {
+                  not_found.push(short_code)
+               }
+               if (line_index % 10000 === 0) {
+                  console.log(`${not_found.length}/${line_index}`)
+               }
+            }
+            console.log(`indexed: ${lines.length}, not_found: ${not_found.length}`)
+            download_packages(not_found, when_complete => {
+               console.log('completed.')
+            })
+         })
    })
+
 
