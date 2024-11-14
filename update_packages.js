@@ -7,6 +7,9 @@ const FRACTO_URL = network.fracto_server_url;
 const INDEXED_TILES_URL = `${URL_BASE}/directory/indexed.csv`;
 const UPDATED_TILES_URL = `${URL_BASE}/directory/updated.csv`;
 const package_dir = `.\\package`
+if (!fs.existsSync(package_dir)) {
+   fs.mkdirSync(package_dir);
+}
 
 const download_packages = (list, cb) => {
    const short_code = list.pop()
@@ -36,7 +39,7 @@ const download_packages = (list, cb) => {
          }
       })
       .catch(err => {
-         console.log("download_packages fail", short_code)
+         console.log("download_packages fail", short_code, err)
          download_packages(list, cb)
       });
 }
