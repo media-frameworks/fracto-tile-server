@@ -5,6 +5,9 @@ const {close, open, utimes} = require('fs');
 const server = require('./admin/server.json')
 const network = require('./admin/network.json')
 
+const path = require('path');
+const SEPARATOR = path.sep;
+
 const URL_BASE = network.fracto_server_url;
 app = express();
 const PORT = server.port
@@ -18,12 +21,12 @@ app.use(cors({
 
 app.listen(PORT, () => console.log(`Server listening at port ${PORT}`));
 
-const dir = `.\\tiles`
+const dir = `.${SEPARATOR}tiles`
 if (!fs.existsSync(dir)) {
    console.log("adding tiles dir", dir)
    fs.mkdirSync(dir);
 }
-const package_dir = `.\\package`
+const package_dir = `.${SEPARATOR}package`
 
 app.get("/get_tiles", (req, res) => {
    const short_code_list = req.query.short_codes;
@@ -33,7 +36,7 @@ app.get("/get_tiles", (req, res) => {
    let files_count = 0;
    for (let i = 0; i < short_codes.length; i++) {
       const short_code = short_codes[i]
-      const filename = `${dir}\\${short_code}.json`
+      const filename = `${dir}${SEPARATOR}${short_code}.json`
       if (fs.existsSync(filename)) {
          results[short_code] = JSON.parse(fs.readFileSync(filename))
          files_count++
@@ -65,7 +68,7 @@ app.get("/get_tiles", (req, res) => {
          for (let i = 0; i < tile_keys.length; i++) {
             const short_code = tile_keys[i]
             results[short_code] = json.tiles[short_code]
-            const filename = `${dir}\\${short_code}.json`
+            const filename = `${dir}${SEPARATOR}${short_code}.json`
             fs.writeFileSync(filename, JSON.stringify(json.tiles[short_code]));
          }
          const result = {
@@ -98,7 +101,7 @@ app.get("/get_packages", (req, res) => {
       const short_code = short_codes[i]
       const level = short_code.length
       const naught = level < 10 ? '0' : ''
-      const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
+      const filename = `${package_dir}${SEPARATOR}L${naught}${level}${SEPARATOR}${short_code}.gz`
       if (fs.existsSync(filename)) {
          const zipfile_contents = fs.readFileSync(filename)
          results[short_code] = Buffer.from(zipfile_contents).toString("base64")
