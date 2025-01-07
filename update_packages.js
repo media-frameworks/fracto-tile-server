@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const network = require('./admin/network.json')
 const URL_BASE = network.dev_server_url;
@@ -6,7 +7,9 @@ const FRACTO_URL = network.fracto_server_url;
 
 const INDEXED_TILES_URL = `${URL_BASE}/directory/indexed.csv`;
 const UPDATED_TILES_URL = `${URL_BASE}/directory/updated.csv`;
-const package_dir = `.\\package`
+const SEPARATOR = path.sep;
+
+const package_dir = `.${SEPARATOR}package`
 if (!fs.existsSync(package_dir)) {
    fs.mkdirSync(package_dir);
 }
@@ -21,11 +24,11 @@ const download_packages = (list, cb) => {
             const buffer = Buffer.from(json["packaged"][short_code], 'base64');
             const level = short_code.length
             const naught = level < 10 ? '0' : ''
-            const folder = `${package_dir}\\L${naught}${level}`
+            const folder = `${package_dir}${SEPARATOR}L${naught}${level}`
             if (!fs.existsSync(folder)) {
                fs.mkdirSync(folder);
             }
-            const filename = `${folder}\\${short_code}.gz`
+            const filename = `${folder}${SEPARATOR}${short_code}.gz`
             fs.writeFileSync(filename, buffer)
             console.log(short_code)
          }
@@ -54,8 +57,8 @@ fetch(UPDATED_TILES_URL)
          const short_code = String(values[0]);
          const level = short_code.length
          const naught = level < 10 ? '0' : ''
-         const folder = `${package_dir}\\L${naught}${level}`
-         const filename = `${folder}\\${short_code}.gz`
+         const folder = `${package_dir}${SEPARATOR}L${naught}${level}`
+         const filename = `${folder}${SEPARATOR}${short_code}.gz`
          if (fs.existsSync(filename)) {
             fs.unlinkSync(filename)
             removedFiles++
@@ -77,7 +80,7 @@ fetch(UPDATED_TILES_URL)
                   continue;
                }
                const naught = level < 10 ? '0' : ''
-               const filename = `${package_dir}\\L${naught}${level}\\${short_code}.gz`
+               const filename = `${package_dir}${SEPARATOR}L${naught}${level}${SEPARATOR}${short_code}.gz`
                if (!fs.existsSync(filename)) {
                   not_found.push(short_code)
                }
