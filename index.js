@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 const proxyOptions = {
-   target: 'http://fracto.mikehallstudio.com', // Replace with your target HTTP server
+   target: 'http://54.221.86.16', // Replace with your target HTTP server
    changeOrigin: true, // Necessary for different hostnames
 };
 
