@@ -11,10 +11,10 @@ if (!fs.existsSync(tile_bin_dir)) {
    fs.mkdirSync(tile_bin_dir);
 }
 
-const URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
+const URL_BASE = "http://54.221.86.16";
 
 const load_short_codes = (tile_set_name, cb) => {
-   const directory_url = `${URL_BASE}/directory/${tile_set_name}.csv`;
+   const directory_url = `${URL_BASE}/manifest/${tile_set_name}.csv`;
    fetch(directory_url)
       .then(response => response.text())
       .then(csv => {
