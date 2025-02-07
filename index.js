@@ -25,7 +25,7 @@ const proxyOptions = {
    changeOrigin: true, // Necessary for different hostnames
 };
 
-app.use('/api', createProxyMiddleware(proxyOptions));
+app.use('/tile_index', createProxyMiddleware(proxyOptions));
 
 app.listen(PORT, () => console.log(`Server listening at port ${PORT}`));
 
