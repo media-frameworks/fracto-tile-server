@@ -4,7 +4,6 @@ const fs = require('fs');
 const {close, open, utimes} = require('fs');
 const server = require('./admin/server.json')
 const network = require('./admin/network.json')
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const path = require('path');
 const SEPARATOR = path.sep;
@@ -19,13 +18,6 @@ app.use(express.urlencoded({extended: false}))
 app.use(cors({
    origin: "*"
 }));
-
-const proxyOptions = {
-   target: 'http://54.221.86.16', // Replace with your target HTTP server
-   changeOrigin: true, // Necessary for different hostnames
-};
-
-app.use('/tile_index', createProxyMiddleware(proxyOptions));
 
 app.listen(PORT, () => console.log(`Server listening at port ${PORT}`));
 
