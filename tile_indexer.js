@@ -5,9 +5,14 @@ let bin_verb = process.argv[2]
 if (!bin_verb) {
    bin_verb = BIN_VERB_INDEXED
 }
-const tile_bin_dir = `./tiles/${bin_verb}`
+const tiles_dir = '/var/www/html/manifest/tiles'
+if (!fs.existsSync(tiles_dir)) {
+   console.log("adding tiles_dir", tiles_dir)
+   fs.mkdirSync(tiles_dir);
+}
+const tile_bin_dir = `${tiles_dir}/${bin_verb}`
 if (!fs.existsSync(tile_bin_dir)) {
-   console.log("adding tiles dir", tile_bin_dir)
+   console.log("adding tile_bin_dir", tile_bin_dir)
    fs.mkdirSync(tile_bin_dir);
 }
 
