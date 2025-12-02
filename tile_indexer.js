@@ -1,6 +1,7 @@
 const fs = require('fs');
 
 const csv = require ('csv-parser');
+const { Readable } = require( "stream" );
 
 const BIN_VERB_INDEXED = "indexed";
 let bin_verb = process.argv[2]
@@ -32,7 +33,8 @@ const streamCsvFromUrl = async (url, cb) => {
       results = []
 
       // 2. Pipe the response body stream to the csv-parser transform stream
-      response.body // This is a Node.js ReadableStream
+      // response.body // This is a Node.js ReadableStreamconst fetchResponse = await fetch(myUrl);
+      Readable.fromWeb( response.body )
          .pipe(csv()) // Transform stream converts CSV chunks to JS objects
          .on('data', (data) => {
             // 3. Process each row of data as it comes in
