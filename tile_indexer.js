@@ -42,7 +42,7 @@ const streamCsvFromUrl = async (url, cb) => {
             results.push(data.short_code);
 
             if (results.length % 100000 === 0) {
-               console.log(results.length, jsonData.short_code);
+               console.log(results.length, data.short_code);
             }
          })
          .on('end', () => {
