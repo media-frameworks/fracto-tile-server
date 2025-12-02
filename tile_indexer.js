@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-const fetch = require ('node-fetch');
 const csv = require ('csv-parser');
 
 const BIN_VERB_INDEXED = "indexed";
