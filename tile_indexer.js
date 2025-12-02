@@ -18,7 +18,52 @@ if (!fs.existsSync(tile_bin_dir)) {
 
 const URL_BASE = "http://54.221.86.16";
 
-const load_short_codes = (tile_set_name, cb) => {
+async function streamCsvFromUrl(url, cb) {
+   try {
+      // 1. Fetch the remote resource and get a readable stream
+      const response = await fetch(url);
+
+      if (!response.ok) {
+         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      results = []
+
+      // 2. Pipe the response body stream to the csv-parser transform stream
+      response.body // This is a Node.js ReadableStream
+         .pipe(csv()) // Transform stream converts CSV chunks to JS objects
+         .on('data', (data) => {
+            // 3. Process each row of data as it comes in
+            const jsonData = JSON.stringify(data);
+            results.push(data.short_code);
+
+            if (results.length % 100000 === 0) {
+               console.log(results.length, jsonData.short_code);
+            }
+         })
+         .on('end', () => {
+            // 4. Handle the end of the stream
+            console.log('Finished reading CSV file.');
+            console.log(`Total rows processed: ${results.length}`);
+            cb(results);
+            // console.log('All results:', results);
+         })
+         .on('error', (error) => {
+            // 5. Handle any errors during streaming or parsing
+            console.error('Error during CSV processing:', error);
+         });
+   } catch (error) {
+      console.error('Fetch operation failed:', error);
+   }
+}
+
+static load_short_codes = (tile_set_name, cb) => {
+   const directory_url = `${URL_BASE}/manifest/${tile_set_name}.csv`;
+   streamCsvFromUrl(directory_url, result => {
+      cb(result)
+   })
+}
+
+const load_short_codes_not = (tile_set_name, cb) => {
    const directory_url = `${URL_BASE}/manifest/${tile_set_name}.csv`;
    fetch(directory_url)
       .then(response => response.text())

@@ -133,7 +133,7 @@ dist
 /admin
 
 # data
-/package
+/archive/package
 /tiles
 /acw-common
 /fracto-common
