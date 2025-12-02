@@ -56,7 +56,7 @@ async function streamCsvFromUrl(url, cb) {
    }
 }
 
-static load_short_codes = (tile_set_name, cb) => {
+const load_short_codes = (tile_set_name, cb) => {
    const directory_url = `${URL_BASE}/manifest/${tile_set_name}.csv`;
    streamCsvFromUrl(directory_url, result => {
       cb(result)
