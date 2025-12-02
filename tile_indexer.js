@@ -1,5 +1,7 @@
 const fs = require('fs');
 
+const csv = require ('csv-parser');
+
 const BIN_VERB_INDEXED = "indexed";
 let bin_verb = process.argv[2]
 if (!bin_verb) {
@@ -17,6 +19,7 @@ if (!fs.existsSync(tile_bin_dir)) {
 }
 
 const URL_BASE = "http://54.221.86.16";
+var results = [];
 
 const streamCsvFromUrl = async (url, cb) => {
    try {
