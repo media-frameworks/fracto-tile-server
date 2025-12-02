@@ -18,7 +18,7 @@ if (!fs.existsSync(tile_bin_dir)) {
 
 const URL_BASE = "http://54.221.86.16";
 
-async function streamCsvFromUrl(url, cb) {
+const streamCsvFromUrl = async (url, cb) => {
    try {
       // 1. Fetch the remote resource and get a readable stream
       const response = await fetch(url);
